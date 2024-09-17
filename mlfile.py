@@ -131,10 +131,9 @@ for supplier in suppliers:
 # Convert the suppliers data into a DataFrame
 df_suppliers = pd.DataFrame(suppliers)
 
-# Add a dummy price if the price data is not available (you can also fetch this from another source)
-df_suppliers['Price'] = df_suppliers['Price']  # Replace with real prices if available
 
-# Prepare the features (Price and Distance) for scaling
+df_suppliers['Price'] = df_suppliers['Price']
+
 X_real_time = df_suppliers[['Price', 'Distance']]
 X_real_time_scaled = scaler.transform(X_real_time)
 
