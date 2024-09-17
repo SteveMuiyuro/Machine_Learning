@@ -6,8 +6,15 @@ from sklearn.ensemble import RandomForestRegressor
 import pickle
 import requests
 import spacy
+from dotenv import load_dotenv
+import os
 
-key = 'AIzaSyCsrPonxZ-MLhBcEpGDG6ol6JHZi1szbZM'
+# Load environment variables from the .env file
+load_dotenv()
+
+
+# Access the API key
+key = os.getenv('API_KEY')
 
 # Load English NLP model
 nlp = spacy.load("en_core_web_sm")
