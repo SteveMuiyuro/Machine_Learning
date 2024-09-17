@@ -8,6 +8,7 @@ import requests
 import spacy
 from dotenv import load_dotenv
 import os
+import json
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -48,19 +49,9 @@ def extract_product_and_location(prompt):
 
     return product, location
 
-
+# Fetch real time data using google place API
 def get_suppliers_from_google(api_key, product, location):
-    """
-    Fetch suppliers from Google Places API based on the product and location.
 
-    Args:
-        api_key (str): Your Google Places API key.
-        product (str): The product to search for.
-        location (str): The location to search within.
-
-    Returns:
-        List[dict]: A list of suppliers with relevant information.
-    """
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     params = {
         'query': f'{product} suppliers in {location}',
@@ -80,7 +71,7 @@ def get_suppliers_from_google(api_key, product, location):
                 'Product_Url': result.get('url', 'N/A'),
                 'Lat': result['geometry']['location']['lat'],
                 'Lng': result['geometry']['location']['lng'],
-                'Price': None  # You can manually input or scrape prices
+                'Price': None
             }
             suppliers.append(supplier)
 
@@ -89,7 +80,7 @@ def get_suppliers_from_google(api_key, product, location):
         print(f"Error fetching data from Google Places API: {response.status_code}")
         return []
 
-
+#Calculate Supplier's distance from the org
 def calculate_distance(supplier_lat, supplier_lng, org_lat, org_lng):
     """
     Calculate the distance between the supplier and the organization.
@@ -119,9 +110,8 @@ org_lat = -1.9489776831828343 # Example: Kigali City latitude
 org_lng = 30.052381922566386  # Example: Kigali City longitude
 
 
-
-# Get real-time suppliers from Google Places API using the extracted variables
-api_key = key  # Replace with your Google API key
+#Extract variables from prompts
+api_key = key
 user_input = "Please a list of suppliers for product laptops in nairobi"
 product, location = extract_product_and_location(user_input)
 
@@ -153,25 +143,22 @@ df_suppliers_sorted = df_suppliers.sort_values(by='Score')
 # Display the top results
 print(df_suppliers_sorted[['Supplier_Name', 'Product_Name', 'Price', 'Distance', 'Score']])
 
+
 def format_supplier_results(suppliers):
-    """
-    Format the sorted suppliers for display in the chatbox.
+    results = []
 
-    Args:
-        suppliers (pd.DataFrame): DataFrame containing sorted suppliers.
+    for supplier in suppliers:
+        result = {
+            "supplier_name": supplier['name'],
+            "product_name": supplier['product'],
+            "product_link": supplier['link'],
+            "price": supplier['price'],
+            "location": supplier['location']
+        }
+        results.append(result)
 
-    Returns:
-        str: Formatted string to display in the chatbox.
-    """
-    results = ""
-    for idx, row in suppliers.iterrows():
-        results += (f"Supplier: {row['Supplier_Name']}\n"
-                    f"Product: {row['Product_Name']}\n"
-                    f"Price: {row['Price']}\n"
-                    f"Distance: {round(row['Distance'], 2)} km\n"
-                    f"Link: {row['Product_Url']}\n\n")
-
-    return results
+    # Convert to JSON
+    return json.dumps(results, indent=4)
 
 # Example usage to format output for the chatbox
 output = format_supplier_results(df_suppliers_sorted)
