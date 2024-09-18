@@ -146,7 +146,7 @@ def filter_and_sort_suppliers(suppliers, org_location):
 organization_location = (-1.94623268784134, 30.067488122865363)
 
 # Example usage
-user_prompt = "I want a list of suppliers for stationery in Nairobi"
+user_prompt = "I want a list of suppliers for stationery in Rwanda"
 
 # Extract product and location from the prompt
 product, city = extract_product_and_city(user_prompt)
