@@ -24,15 +24,26 @@ nlp = spacy.load("en_core_web_sm")
 
 # Custom function to extract product and location
 def extract_product_and_city(prompt):
-    # Regex pattern to capture product and city
-    product_pattern = re.search(r'for (.*?) in', prompt)
-    city_pattern = re.search(r'in (.*)', prompt)
+    doc = nlp(prompt)
 
-    product = product_pattern.group(1) if product_pattern else None
-    city = city_pattern.group(1) if city_pattern else None
+    # Extract city using NER (Location entity)
+    city = None
+    for ent in doc.ents:
+        if ent.label_ == "GPE":  # GPE (Geopolitical Entity) typically identifies cities, countries, etc.
+            city = ent.text
+            break
+
+    # Extract product using regex, considering possible formats in the prompt
+    # This regex will try to capture anything after "suppliers" but before the city or end of the string
+    product_pattern = None
+    if city:
+        product_pattern = re.search(r'suppliers\s+([\w\s]+)\s+' + re.escape(city), prompt, re.IGNORECASE)
+    else:
+        product_pattern = re.search(r'suppliers\s+([\w\s]+)', prompt, re.IGNORECASE)
+
+    product = product_pattern.group(1).strip() if product_pattern else None
 
     return product, city
-
 
 # Google Places API Key
 api_key = key
@@ -146,10 +157,11 @@ def filter_and_sort_suppliers(suppliers, org_location):
 organization_location = (-1.94623268784134, 30.067488122865363)
 
 # Example usage
-user_prompt = "I want a list of suppliers for stationery in Rwanda"
+user_prompt = "Show suppliers for shoes in New York"
 
 # Extract product and location from the prompt
 product, city = extract_product_and_city(user_prompt)
+print(product, city)
 
 # Get a list of suppliers from google
 suppliers = get_suppliers_from_google(product, city)
