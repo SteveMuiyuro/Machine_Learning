@@ -72,7 +72,7 @@ def scrape_product_price(page_url, query_params=None, retries=3, delay=2):
             response.raise_for_status()  # Raise an error for bad responses
 
             soup = BeautifulSoup(response.text, 'html.parser')
-          
+
 
             # Possible tags and classes to check for the price
             price_selectors = [
@@ -175,10 +175,10 @@ def calculate_distance_and_score(supplier, org_location, product_name):
 
 
 # Main functionality
-organization_location = (-1.94623268784134, 30.067488122865363)
+organization_location = (-1.94623268784134, 30.067488122865363) ## Kigali Rwanda Coordinates
 
 # Example usage
-user_prompt = "suppliers ofiphone 15 in Kenya"
+user_prompt = "suppliers of iphone 15 in Rwanda"
 product, city = extract_product_and_city(user_prompt)
 
 # Get suppliers from Google Places API
